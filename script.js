@@ -24,11 +24,11 @@ checkbtn.innerHTML="CHECK"
 
 var sudoku = document.createElement('form')
 sudoku.setAttribute('id','sudoku')
-sudoku.setAttribute('style','margin-left:320px;')
+sudoku.setAttribute('style','margin-left:330px;')
 var linebreak1 = document.createElement("br");
 
-document.body.append(head, newGame, resetbtn, solvebtn, checkbtn, sudoku)
-sudoku.appendChild(linebreak1)
+document.body.append(head, newGame, resetbtn, solvebtn, checkbtn, sudoku);
+sudoku.appendChild(linebreak1);
 
 function sudokuTable() {
   var i, j, tr, td, input,
@@ -42,12 +42,12 @@ function sudokuTable() {
       td = document.createElement('td');
       tr.appendChild(td);
       input = document.createElement('input');
-	  input.setAttribute('maxlength','1')
-	  input.setAttribute('id','inputs')
-	  input.setAttribute('style','margin: -1px; border:1px solid #f0f0f0;')
+	  input.setAttribute('maxlength','1');
+	  input.setAttribute('id','inputs');
+	  input.setAttribute('style','margin: -1px; border:1px solid #f0f0f0;');
       input.type = 'text';
 	  if((i< 3 && j< 3) || (i> 5 && j> 5) || (i< 3 && j> 5) || (i> 5 && j< 3) || ((i>2 && i<6) && (j>2 && j<6)))
-		  input.setAttribute('style', 'background-color: #f0f0f0; border: 1px solid white')
+		  input.setAttribute('style', 'background-color: #f0f0f0; border: 1px solid white');
       input.size = 1;
       td.appendChild(input);
     }
@@ -59,12 +59,39 @@ function sudokuTable() {
 }
 sudokuTable();
 
-var timer = document.createElement('div')
-timer.setAttribute('id', 'time')
-timer.innerHTML="04:00"
+var timer = document.createElement('div');
+timer.setAttribute('id', 'time');
+timer.innerHTML="000 second";
 
+var timercount;
+var tottime= 240;
 document.body.append(timer)
 
+function startTimer() {
+    timercount = timercount-1;
+	if(timercount < tottime){
+		timer.innerHTML= timercount;
+	}
+	if(timercount < 1){
+		window.clearInterval(update);
+		alert("Time up");
+		var winlose = check();
+		for(i=0;i<81;i++){
+			var form = document.querySelector('form#sudoku')
+			form[i].disabled=true;
+			disabled='yes'
+		}
+		if(winlose)
+			alert("YOU LOSE");
+		else{
+			var spenttime= timercount;
+			var score = (240-spenttime)*0.1 +10;
+			console.log(score);
+			alert("YOU WIN \n Your score : " + score);
+		}
+	}
+}
+var update;
 function solve(matrix) {
   var i, j, b, digit;
   for (i = 0; i <= 8; i++) {
@@ -118,6 +145,9 @@ var input = [[[0,0,0,8,0,0,7,0,0],[0,0,9,6,2,0,0,0,0],[1,0,2,7,0,9,0,6,0],[8,0,0
 
 var disabled='';
 function test() {
+	
+	window.clearInterval(update);
+	timercount='-';
   var form = document.querySelector('form#sudoku'),
       matrix,
       holder = [],
@@ -150,14 +180,17 @@ function test() {
 	disabled='yes'
   }
 }
+
 var times=0;
 function qn(){
-	var display = document.querySelector('#time');
-	startTimer(60*4 , display )
+	over();
+	timercount = tottime;
+	update = setInterval("startTimer()", 1000);
 	disabled='no';
 	if(times>= input.length){
 		var alertmsg = alert("Game over")
 		var alertmsg = prompt("Rate this Game")
+		over();
 	}
 	else{
 	var matrix, form = document.querySelector('form#sudoku');
@@ -218,9 +251,11 @@ function check(){
 	for(i=0;i<9;i++){
 		for(j=0;j<9;j++)
 		{
-			if(samedigit = checkDigit(matrix, matrix[i][j], i, j)){
-				alert("Please check the entry at row "+ (1+i) + " and column "+ (1+j))
-				return;
+			var digicheck = samedigit = checkDigit(matrix, matrix[i][j], i, j);
+			if(digicheck){
+				if(timercount >1){
+				alert("Please check the entry at row "+ (1+i) + " and column "+ (1+j))}
+				return true;
 			}
 		}		
 	}
@@ -228,7 +263,13 @@ function check(){
 			
 			break;
 		}*/
+	var spenttime= timercount;
+	var score = (240-spenttime)*0.1 +10;
+	console.log(score);
 	alert("YOU WIN \n Your score : " + score)
+	if(timercount>1)
+		over();
+	return false;
 }
 
 function checkDigit(matrix, digit, row, col){
@@ -270,13 +311,12 @@ function checkDigit(matrix, digit, row, col){
 	return false;
 }
 
-var spenttime=1
-var score = (4-spenttime)*30 +10;
-console.log(score);
+
 
 function rset(){
-	var display = document.querySelector('#time');
-	startTimer(60*4 , display );
+	over();
+	timercount = tottime;
+	update = setInterval("startTimer()", 1000);
 	disabled='no';
 	times--;
 	if(times>= input.length){
@@ -313,28 +353,7 @@ function rset(){
 		z++
     }
   }
-	times++;}	
-}
-
-function startTimer(duration, display) {
-    var timer = duration, minutes, seconds;
-    setInterval(function () {
-        minutes = parseInt(timer / 60, 10);
-        seconds = parseInt(timer % 60, 10);
-
-        minutes = minutes < 10 ? "0" + minutes : minutes;
-        seconds = seconds < 10 ? "0" + seconds : seconds;
-
-        display.textContent = minutes + ":" + seconds;
-
-        if (--timer < 0) {
-            timer = duration;
-        }
-		if(timer==0){
-			timercheck();
-			return;
-		}
-    }, 1000);
+	times++;}
 }
 
 var play = document.createElement('div')
@@ -402,8 +421,9 @@ ul2.appendChild(li11)
 ul2.appendChild(li12)
 ul2.appendChild(li13)
 
-function timercheck(){
-	
+function over(){
+	window.clearInterval(update);
+	timercount='-';
 }
 
  
