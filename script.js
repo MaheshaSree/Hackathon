@@ -24,7 +24,7 @@ checkbtn.innerHTML="CHECK"
 
 var sudoku = document.createElement('form')
 sudoku.setAttribute('id','sudoku')
-sudoku.setAttribute('style','margin-left:330px;')
+sudoku.setAttribute('style','max-width:500px ;margin:auto;')
 var linebreak1 = document.createElement("br");
 
 document.body.append(head, newGame, resetbtn, solvebtn, checkbtn, sudoku);
